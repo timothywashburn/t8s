@@ -5,6 +5,7 @@ kind: Application
 metadata:
   name: {{ .name }}
   namespace: argocd
+  {{- if .images }}
   annotations:
     argocd-image-updater.argoproj.io/image-list: {{ include "timothyw-system.imageList" .images }}
     argocd-image-updater.argoproj.io/write-back-method: argocd
@@ -14,6 +15,7 @@ metadata:
     argocd-image-updater.argoproj.io/{{ .alias }}.helm.image-tag: image.{{ .alias }}.tag
     argocd-image-updater.argoproj.io/{{ .alias }}.pull-secret: pullsecret:{{ .pullSecret }}
     {{- end }}
+  {{- end }}
 spec:
   project: default
   source:
@@ -25,11 +27,13 @@ spec:
       valueFiles:
         - {{ .valuesFile }}
       {{- end }}
+      {{- if .images }}
       parameters:
         {{- range .images }}
         - name: image.{{ .alias }}.name
           value: {{ .image }}
         {{- end }}
+      {{- end }}
   destination:
     server: https://kubernetes.default.svc
     namespace: {{ .namespace }}
