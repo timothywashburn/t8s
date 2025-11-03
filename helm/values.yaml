@@ -56,3 +56,8 @@ applications:
       - alias: server
         image: kyrokrypt/clubhive-server-dev
         pullSecret: clubhive/dockerhub-registry
+  - name: overleaf
+    namespace: overleaf
+    repoURL: https://github.com/timothywashburn/overleaf
+    branch: main
+    path: helm
