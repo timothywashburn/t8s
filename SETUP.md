@@ -10,21 +10,33 @@ This document provides step-by-step instructions for setting up the infrastructu
 
 ## Step 1: Install K3s and Configure System
 
+### Control Plane Install
+
 ```bash
 # SSH into VPS
 curl -sfL https://get.k3s.io | sh -
-sudo k3s kubectl get nodes
 
 # Configure system limits for monitoring workloads
-echo 'fs.inotify.max_user_instances = 8192' >> /etc/sysctl.conf
-echo 'fs.inotify.max_user_watches = 524288' >> /etc/sysctl.conf
-sysctl -p
+echo 'fs.inotify.max_user_instances = 8192' | sudo tee -a /etc/sysctl.conf > /dev/null
+echo 'fs.inotify.max_user_watches = 524288' | sudo tee -a /etc/sysctl.conf > /dev/null
+sudo sysctl -p
 ```
+
+### Worker Node Install (if applicable)
+
+Fetch the control plane's K3S_TOKEN from `/var/lib/rancher/k3s/server/node-token` and then run the following with the appropriate url and token:
+
+```bash
+curl -sfL https://get.k3s.io | K3S_URL=https://myserver:6443 K3S_TOKEN=MYTOKEN sh -
+```
+
+To verify you can run `sudo k3s kubectl get nodes`.
 
 ## Step 2: Configure Local kubectl Access
 
-Run the setup script to add a new context to your local `kubectl` configuration:
+Setup local access to use `kubectl`. The following script is unreliable but can help.
 
+[//]: # (doesn't work with ports/didn't work with wiji's server at all)
 ```bash
 ./scripts/setup-kubeconfig.sh USER@VPS_IP CONTEXT_NAME
 ```
@@ -67,7 +79,7 @@ kubectl port-forward svc/argocd-server -n argocd 8080:443
    - **Sync Policy**: `Manual`
    
    **Source:**
-   - **Repository URL**: `https://github.com/timothywashburn/timothyw.dev`
+   - **Repository URL**: `https://github.com/timothywashburn/timothyw-system`
    - **Revision** : `main` (branch)
    - **Path**: `helm`
    

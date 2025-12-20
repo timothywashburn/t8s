@@ -1,0 +1,22 @@
+global:
+  dashboardDomain: k8s.timothyw.dev
+  argoCDDomain: argo.timothyw.dev
+  grafanaDomain: grafana.timothyw.dev
+  loadBalancerIP: "64.71.152.179"
+
+argocd:
+  repository: https://github.com/timothywashburn/timothyw-system
+  branch: main
+
+infrastructure:
+  traefik:
+    rbacFix:
+      enabled: true
+  metallb:
+    enabled: true
+  dashboard:
+    enabled: true
+  argocd:
+    enabled: true
+  monitoring:
+    enabled: true

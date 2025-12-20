@@ -1,0 +1,6 @@
+apiVersion: v2
+name: t8s-infrastructure
+description: Additional infrastructure for t8s
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

@@ -1,3 +1,8 @@
+environments:
+  default:
+    values:
+      - config.yaml
+
 repositories:
   - name: metallb
     url: https://metallb.github.io/metallb
@@ -32,7 +37,7 @@ releases:
     createNamespace: true
     values:
       - server:
-          insecure: true
+#          insecure: true
           service:
             type: ClusterIP
           metrics:
@@ -59,10 +64,10 @@ releases:
                 prometheus.io/port: "8084"
                 prometheus.io/path: "/metrics"
         configs:
-          params:
-            server.insecure: true
+#          params:
+#            server.insecure: true
           cm:
-            url: https://argocd.timothyw.dev
+            url: https://argocd.{{ .Environment.Values.domain }}
             accounts.image-updater: apiKey
             accounts.image-updater.enabled: "true"
           rbac:
@@ -95,6 +100,13 @@ releases:
               prometheus.io/scrape: "true"
               prometheus.io/port: "8081"
               prometheus.io/path: "/metrics"
+    needs:
+      - argocd/argocd
+
+  - name: t8s-infrastructure
+    namespace: t8s
+    chart: ./infrastructure
+    createNamespace: true
     needs:
       - argocd/argocd
 
@@ -228,7 +240,7 @@ releases:
           type: pvc
           enabled: true
         adminUser: admin
-        adminPassword: adminadminadmin
+        adminPassword: {{ .Environment.Values.grafana.adminPassword }}
         service:
           enabled: true
           type: ClusterIP
@@ -236,7 +248,7 @@ releases:
           enabled: false
         grafana.ini:
           server:
-            root_url: https://grafana.timothyw.dev
+            root_url: https://grafana.{{ .Environment.Values.domain }}
             serve_from_sub_path: false
         datasources:
           datasources.yaml:
@@ -270,7 +282,7 @@ releases:
     version: 3.1.5
     values:
       - cluster:
-          name: timothyw-cluster
+          name: {{ .Environment.Values.cluster.name }}
         global:
           scrapeInterval: 20s
         destinations:
