@@ -91,11 +91,12 @@ kubectl get secret admin-user-token -n kubernetes-dashboard -o jsonpath='{.data.
 
 ### Grafana
 
-### Grafana
-
 - Accessible at host defined in `config.yaml`
 - Username: `admin`
-- Password: `adminadminadmin` ⚠️ **Change this default password for production use**
+- Password: (from below command)
+```bash
+kubectl get secret -n monitoring grafana -o jsonpath="{.data.admin-password}" | base64 -d
+```
 
 **Getting Started with Grafana:**
 1. Go to **Explore** → **Prometheus** for metrics queries

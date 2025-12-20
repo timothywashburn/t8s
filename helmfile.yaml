@@ -256,8 +256,6 @@ releases:
       - persistence:
           type: pvc
           enabled: true
-        adminUser: admin
-        adminPassword: {{ .Environment.Values.grafana.adminPassword }}
         service:
           enabled: true
           type: ClusterIP
