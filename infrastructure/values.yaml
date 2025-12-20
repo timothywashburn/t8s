@@ -6,7 +6,7 @@ global:
   certManagerEmail: timothyrwashburn@gmail.com
 
 argocd:
-  repository: https://github.com/timothywashburn/timothyw-system
+  repository: https://github.com/timothywashburn/t8s
   branch: chore/stabilize
 
 infrastructure:

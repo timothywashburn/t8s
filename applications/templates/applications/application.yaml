@@ -7,7 +7,7 @@ metadata:
   namespace: argocd
   {{- if .images }}
   annotations:
-    argocd-image-updater.argoproj.io/image-list: {{ include "timothyw-system.imageList" .images }}
+    argocd-image-updater.argoproj.io/image-list: {{ include "t8s.imageList" .images }}
     argocd-image-updater.argoproj.io/write-back-method: argocd
     {{- range .images }}
     argocd-image-updater.argoproj.io/{{ .alias }}.update-strategy: newest-build
