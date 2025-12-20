@@ -6,7 +6,7 @@ global:
 
 argocd:
   repository: https://github.com/timothywashburn/timothyw-system
-  branch: main
+  branch: chore/stabilize
 
 infrastructure:
   traefik:
