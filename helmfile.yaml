@@ -14,6 +14,8 @@ repositories:
     url: https://grafana.github.io/helm-charts
   - name: prometheus-community
     url: https://prometheus-community.github.io/helm-charts
+  - name: jetstack
+    url: https://charts.jetstack.io
 
 releases:
   - name: metallb
@@ -21,6 +23,21 @@ releases:
     chart: metallb/metallb
     version: 0.15.2
     createNamespace: true
+
+  - name: cert-manager
+    namespace: cert-manager
+    chart: jetstack/cert-manager
+    version: v1.16.2
+    createNamespace: true
+    values:
+      - crds:
+          enabled: true
+        prometheus:
+          enabled: true
+          servicemonitor:
+            enabled: false
+    needs:
+      - metallb-system/metallb
 
   - name: kubernetes-dashboard
     namespace: kubernetes-dashboard
@@ -37,7 +54,7 @@ releases:
     createNamespace: true
     values:
       - server:
-#          insecure: true
+          insecure: true
           service:
             type: ClusterIP
           metrics:
@@ -64,10 +81,10 @@ releases:
                 prometheus.io/port: "8084"
                 prometheus.io/path: "/metrics"
         configs:
-#          params:
-#            server.insecure: true
+          params:
+            server.insecure: true
           cm:
-            url: https://argocd.{{ .Environment.Values.domain }}
+            url: https://{{ .Environment.Values.hosts.argocd }}
             accounts.image-updater: apiKey
             accounts.image-updater.enabled: "true"
           rbac:
@@ -248,7 +265,7 @@ releases:
           enabled: false
         grafana.ini:
           server:
-            root_url: https://grafana.{{ .Environment.Values.domain }}
+            root_url: https://{{ .Environment.Values.hosts.grafana }}
             serve_from_sub_path: false
         datasources:
           datasources.yaml:
@@ -282,7 +299,7 @@ releases:
     version: 3.1.5
     values:
       - cluster:
-          name: {{ .Environment.Values.cluster.name }}
+          name: t8s
         global:
           scrapeInterval: 20s
         destinations:

@@ -7,12 +7,41 @@ metadata:
   namespace: kubernetes-dashboard
 spec:
   entryPoints:
-    - web
     - websecure
   routes:
     - kind: Rule
       match: Host(`{{ .Values.global.dashboardDomain }}`)
       priority: 10
+      services:
+        - name: kubernetes-dashboard-kong-proxy
+          port: 443
+          serversTransport: dashboard-transport
+  tls:
+    secretName: dashboard-tls
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: dashboard-https-redirect
+  namespace: kubernetes-dashboard
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: kubernetes-dashboard-http
+  namespace: kubernetes-dashboard
+spec:
+  entryPoints:
+    - web
+  routes:
+    - kind: Rule
+      match: Host(`{{ .Values.global.dashboardDomain }}`) && !PathPrefix(`/.well-known/acme-challenge/`)
+      middlewares:
+        - name: dashboard-https-redirect
       services:
         - name: kubernetes-dashboard-kong-proxy
           port: 443
@@ -25,4 +54,17 @@ metadata:
   namespace: kubernetes-dashboard
 spec:
   insecureSkipVerify: true
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: dashboard-tls
+  namespace: kubernetes-dashboard
+spec:
+  secretName: dashboard-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - {{ .Values.global.dashboardDomain }}
 {{- end }}

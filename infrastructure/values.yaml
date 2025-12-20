@@ -1,8 +1,9 @@
 global:
-  dashboardDomain: k8s.timothyw.dev
-  argoCDDomain: argo.timothyw.dev
-  grafanaDomain: grafana.timothyw.dev
-  loadBalancerIP: "64.71.152.179"
+  dashboardDomain: d.k8s.timothyw.dev
+  argoCDDomain: d.argo.timothyw.dev
+  grafanaDomain: d.grafana.timothyw.dev
+  loadBalancerIP: "132.249.242.21"
+  certManagerEmail: timothyrwashburn@gmail.com
 
 argocd:
   repository: https://github.com/timothywashburn/timothyw-system
