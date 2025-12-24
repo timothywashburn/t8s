@@ -5,9 +5,9 @@ apiVersion: argocd-image-updater.argoproj.io/v1alpha1
 kind: ImageUpdater
 metadata:
   name: {{ .name }}-image-updater
-  namespace: {{ .namespace }}
+{{/*  namespace: {{ .namespace }}*/}}
 spec:
-  namespace: argocd
+  namespace: t8s
   writeBackConfig:
     method: "argocd"
   applicationRefs:
