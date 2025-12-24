@@ -6,34 +6,37 @@ This document provides step-by-step instructions for setting up the infrastructu
 
 - kubectl installed locally
 - Helmfile installed locally
+- Ansible installed locally
 
-## Step 1: Install K3s and Configure System
+## Step 1: Ansible System Configuration and K3s Setup
 
-### Control Plane Install
+Edit `ansible/inventory.ini` with your server IP and SSH user:
 
-```bash
-# SSH into VPS
-curl -sfL https://get.k3s.io | sh -
+```ini
+[control_plane]
+control-plane ansible_host=YOUR_VPS_IP ansible_user=YOUR_SSH_USER
 
-# Configure system limits for monitoring workloads
-echo 'fs.inotify.max_user_instances = 8192' | sudo tee -a /etc/sysctl.conf > /dev/null
-echo 'fs.inotify.max_user_watches = 524288' | sudo tee -a /etc/sysctl.conf > /dev/null
-sudo sysctl -p
+[workers]
+# Uncomment and add worker nodes if needed
+# worker-1 ansible_host=192.168.1.101 ansible_user=root
 ```
 
-### Worker Node Install (if applicable)
-
-Fetch the control plane's K3S_TOKEN from `/var/lib/rancher/k3s/server/node-token` and then run the following with the appropriate url and token:
+Test connectivity:
 
 ```bash
-curl -sfL https://get.k3s.io | K3S_URL=https://myserver:6443 K3S_TOKEN=MYTOKEN sh -
+cd ansible/
+ansible all -m ping
 ```
 
-To verify you can run `sudo k3s kubectl get nodes`.
+Run the playbook:
+
+```bash
+ansible-playbook setup-k3s.yml
+```
 
 ## Step 2: Configure Local kubectl Access
 
-Setup local access to use `kubectl`. The following script is unreliable but can help.
+Setup local access to use `kubectl`. The following script can do so automatically but requires the control plane to be accessible at a public ip, and have a ssh server accessible via public key (no password auth) at port 22.
 
 [//]: # (doesn't work with ports/didn't work with wiji's server at all)
 ```bash
@@ -50,10 +53,8 @@ Use Helmfile to install the core infrastructure components:
 helmfile sync
 ```
 
-If there are port-forward networking issues after the sync, restart k3s:
-
+Restart K3s by running the following from the control plane (recommended to fix known port-forwarding issue):
 ```bash
-# SSH into VPS
 sudo systemctl restart k3s
 ```
 
@@ -147,10 +148,4 @@ The ArgoCD Image Updater is installed automatically. To complete the setup:
    kubectl create secret generic argocd-image-updater-secret \
      --from-literal argocd.token=$YOUR_TOKEN \
      --namespace argocd
-   ```
-
-[//]: # (I still need to figure out what this means this wording is confusing)
-3. **Apply additional RBAC permissions**:
-   ```bash
-   helmfile apply
    ```

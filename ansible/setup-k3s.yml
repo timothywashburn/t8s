@@ -1,0 +1,79 @@
+---
+- name: Configure nodes
+  hosts: k3s_cluster
+  become: true
+
+  tasks:
+    - name: Configure system limits
+      sysctl:
+        name: "{{ item.key }}"
+        value: "{{ item.value }}"
+        sysctl_file: /etc/sysctl.d/99-k3s.conf
+        reload: true
+      loop:
+        - { key: "fs.inotify.max_user_instances", value: "{{ fs_inotify_max_user_instances }}" }
+        - { key: "fs.inotify.max_user_watches", value: "{{ fs_inotify_max_user_watches }}" }
+
+- name: Setup control plane
+  hosts: control_plane
+  become: true
+
+  tasks:
+    - name: Install K3s control plane
+      shell: |
+        {% if k3s_version %}
+        INSTALL_K3S_VERSION="{{ k3s_version }}" \
+        {% endif %}
+        curl -sfL https://get.k3s.io | sh -s - {{ k3s_server_options }}
+      args:
+        creates: /etc/systemd/system/k3s.service
+
+    - name: Read K3s token
+      slurp:
+        path: /var/lib/rancher/k3s/server/node-token
+      register: k3s_token_file
+
+    - name: Set K3s token as fact
+      set_fact:
+        k3s_token: "{{ k3s_token_file.content | b64decode | trim }}"
+
+- name: Setup worker nodes
+  hosts: workers
+  become: true
+
+  vars:
+    k3s_control_plane_ip: "{{ hostvars[groups['control_plane'][0]]['ansible_host'] }}"
+    k3s_token: "{{ hostvars[groups['control_plane'][0]]['k3s_token'] }}"
+    k3s_url: "https://{{ k3s_control_plane_ip }}:{{ hostvars[groups['control_plane'][0]]['k3s_api_port'] }}"
+
+  tasks:
+    - name: Install K3s to Worker Node
+      shell: |
+        export K3S_URL="{{ k3s_url }}"
+        export K3S_TOKEN="{{ k3s_token }}"
+        {% if k3s_version %}export INSTALL_K3S_VERSION="{{ k3s_version }}"
+        {% endif %}curl -sfL https://get.k3s.io | sh -
+      args:
+        creates: /etc/systemd/system/k3s-agent.service
+      no_log: true
+
+- name: Verification
+  hosts: control_plane
+  become: true
+
+  tasks:
+    - name: Get all nodes
+      command: kubectl get nodes
+      register: nodes
+      changed_when: false
+
+    - name: Display cluster nodes
+      debug:
+        msg: "{{ nodes.stdout_lines }}"
+
+    - name: Verify expected node count
+      assert:
+        that:
+          - (nodes.stdout_lines | length - 1) == (groups['control_plane'] | length + groups['workers'] | default([]) | length)
+        fail_msg: "Expected {{ groups['control_plane'] | length + groups['workers'] | default([]) | length }} nodes, but found {{ nodes.stdout_lines | length - 1 }}"
+        success_msg: "All {{ groups['control_plane'] | length + groups['workers'] | default([]) | length }} nodes joined successfully"
