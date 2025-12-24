@@ -15,7 +15,7 @@ spec:
       images:
         {{- range .images }}
         - alias: "{{ .alias }}"
-          imageName: "{{ .image }}"
+          imageName: "{{ .image }}{{- if not (contains ":" .image) }}:latest{{- end }}"
           commonUpdateSettings:
             updateStrategy: "newest-build"
             pullSecret: "pullsecret:{{ .pullSecret }}"
