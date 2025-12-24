@@ -3,3 +3,4 @@ retry/
 ignore-*
 .DS_Store
 config.yaml
+.env
