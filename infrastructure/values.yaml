@@ -2,6 +2,7 @@ global:
   dashboardDomain: d.k8s.timothyw.dev
   argoCDDomain: d.argo.timothyw.dev
   grafanaDomain: d.grafana.timothyw.dev
+  longhornDomain: d.longhorn.timothyw.dev
   loadBalancerIP: "132.249.242.21"
   certManagerEmail: timothyrwashburn@gmail.com
 
@@ -20,4 +21,6 @@ infrastructure:
   argocd:
     enabled: true
   monitoring:
+    enabled: true
+  longhorn:
     enabled: true
