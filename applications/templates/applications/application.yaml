@@ -32,6 +32,8 @@ spec:
         {{- range .images }}
         - name: image.{{ .alias }}.name
           value: {{ .image }}
+        - name: image.{{ .alias }}.tag
+          value: latest
         {{- end }}
       {{- end }}
   destination:
