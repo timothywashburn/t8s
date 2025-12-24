@@ -33,10 +33,10 @@ applications:
     images:
       - alias: client
         image: kyrokrypt/clubhive-client-dev
-        pullSecret: clubhive/dockerhub-registry
+        pullSecret: clubhive-dev/dockerhub-registry
       - alias: server
         image: kyrokrypt/clubhive-server-dev
-        pullSecret: clubhive/dockerhub-registry
+        pullSecret: clubhive-dev/dockerhub-registry
   - name: overleaf
     namespace: overleaf
     repoURL: https://github.com/timothywashburn/overleaf
