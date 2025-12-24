@@ -1,0 +1,28 @@
+{{- range .Values.applications }}
+{{- if .images }}
+---
+apiVersion: argocd-image-updater.argoproj.io/v1alpha1
+kind: ImageUpdater
+metadata:
+  name: {{ .name }}-image-updater
+  namespace: argocd
+spec:
+  namespace: argocd
+  writeBackConfig:
+    method: "argocd"
+  applicationRefs:
+    - namePattern: "{{ .name }}"
+      images:
+        {{- range .images }}
+        - alias: "{{ .alias }}"
+          imageName: "{{ .image }}"
+          commonUpdateSettings:
+            updateStrategy: "newest-build"
+            pullSecret: "pullsecret:{{ .pullSecret }}"
+          manifestTargets:
+            helm:
+              name: "image.{{ .alias }}.name"
+              tag: "image.{{ .alias }}.tag"
+        {{- end }}
+{{- end }}
+{{- end }}
