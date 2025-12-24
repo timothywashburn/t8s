@@ -15,11 +15,11 @@ spec:
       images:
         {{- range .images }}
         - alias: "{{ .alias }}"
-          imageName: "{{ .image }}"
+          imageName: "{{ .image }}:latest"
           commonUpdateSettings:
             updateStrategy: "newest-build"
             pullSecret: "pullsecret:{{ .pullSecret }}"
-            allowTags: "regexp:^[0-9a-f]{7}$"
+            allowTags: "regexp:^[0-9a-f]{40}$"
           manifestTargets:
             helm:
               name: "image.{{ .alias }}.name"
