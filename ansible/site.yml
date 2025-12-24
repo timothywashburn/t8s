@@ -1,6 +1,0 @@
----
-- name: Complete K3s Cluster Setup
-  import_playbook: setup-k3s.yml
-
-- name: Deploy Infrastructure
-  import_playbook: deploy-infrastructure.yml

@@ -1,0 +1,127 @@
+---
+- name: Configure Infrastructure Secrets and Settings
+  hosts: control_plane
+  become: true
+
+  vars:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+
+  tasks:
+    # OAuth2 Proxy Secret for Longhorn
+    - name: Check if OAuth2 Proxy secret exists
+      command: kubectl -n longhorn-system get secret oauth2-proxy-secret
+      register: oauth2_secret_check
+      failed_when: false
+      changed_when: false
+
+    - name: Generate OAuth2 Proxy cookie secret
+      set_fact:
+        oauth2_cookie_secret: "{{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') | b64encode }}"
+      when: oauth2_secret_check.rc != 0
+
+    - name: Retrieve existing OAuth2 Proxy cookie secret
+      shell: kubectl -n longhorn-system get secret oauth2-proxy-secret -o jsonpath='{.data.cookie-secret}' | base64 -d
+      register: existing_oauth2_secret
+      when: oauth2_secret_check.rc == 0
+      changed_when: false
+
+    - name: Set OAuth2 cookie secret from existing
+      set_fact:
+        oauth2_cookie_secret: "{{ existing_oauth2_secret.stdout | b64encode }}"
+      when: oauth2_secret_check.rc == 0
+
+    - name: Create OAuth2 Proxy secret
+      shell: |
+        kubectl create namespace longhorn-system --dry-run=client -o yaml | kubectl apply -f -
+        kubectl -n longhorn-system create secret generic oauth2-proxy-secret \
+          --from-literal=client-id='{{ google_oauth_client_id }}' \
+          --from-literal=client-secret='{{ google_oauth_client_secret }}' \
+          --from-literal=cookie-secret='{{ oauth2_cookie_secret | b64decode }}' \
+          --dry-run=client -o yaml | kubectl apply -f -
+      changed_when: false
+
+    # ArgoCD Image Updater Token and Secret Setup
+    - name: Copy image-updater token generation script
+      copy:
+        src: "{{ playbook_dir }}/../scripts/generate-image-updater-token.sh"
+        dest: /tmp/generate-image-updater-token.sh
+        mode: '0755'
+
+    - name: Setup ArgoCD Image Updater token and secret
+      command: /tmp/generate-image-updater-token.sh
+      register: image_updater_result
+      changed_when: image_updater_result.rc == 0
+      failed_when: image_updater_result.rc not in [0, 10]
+
+    # Retrieve and Display Credentials
+    - name: Wait for ArgoCD secret to exist
+      command: kubectl -n argocd get secret argocd-initial-admin-secret
+      register: argocd_secret_check
+      until: argocd_secret_check.rc == 0
+      retries: 30
+      delay: 10
+      changed_when: false
+      failed_when: false
+
+    - name: Wait for Grafana secret to exist
+      command: kubectl -n monitoring get secret grafana
+      register: grafana_secret_check
+      until: grafana_secret_check.rc == 0
+      retries: 30
+      delay: 10
+      changed_when: false
+      failed_when: false
+
+    - name: Wait for Kubernetes Dashboard secret to exist
+      command: kubectl -n kubernetes-dashboard get secret admin-user-token
+      register: dashboard_secret_check
+      until: dashboard_secret_check.rc == 0
+      retries: 30
+      delay: 10
+      changed_when: false
+      failed_when: false
+
+    - name: Retrieve ArgoCD password
+      shell: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+      register: argocd_password
+      changed_when: false
+      when: argocd_secret_check.rc == 0
+
+    - name: Retrieve Grafana password
+      shell: kubectl -n monitoring get secret grafana -o jsonpath="{.data.admin-password}" | base64 -d
+      register: grafana_password
+      changed_when: false
+      when: grafana_secret_check.rc == 0
+
+    - name: Retrieve Kubernetes Dashboard token
+      shell: kubectl -n kubernetes-dashboard get secret admin-user-token -o jsonpath='{.data.token}' | base64 -d
+      register: dashboard_token
+      changed_when: false
+      when: dashboard_secret_check.rc == 0
+
+    - name: Display credentials
+      debug:
+        msg:
+          - "==========================================="
+          - "Cluster Credentials"
+          - "==========================================="
+          - ""
+          - "ArgoCD:"
+          - "  URL: https://{{ argocd_host }}"
+          - "  Username: admin"
+          - "  Password: {{ argocd_password.stdout }}"
+          - ""
+          - "Grafana:"
+          - "  URL: https://{{ grafana_host }}"
+          - "  Username: admin"
+          - "  Password: {{ grafana_password.stdout }}"
+          - ""
+          - "Longhorn:"
+          - "  URL: https://{{ longhorn_host }}"
+          - "  Auth: Google OAuth (login with your Google account)"
+          - ""
+          - "Kubernetes Dashboard:"
+          - "  URL: https://{{ dashboard_host }}"
+          - "  Token: {{ dashboard_token.stdout }}"
+          - ""
+          - "==========================================="

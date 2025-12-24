@@ -10,7 +10,7 @@ NC='\033[0m'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [ -f "$SCRIPT_DIR/../.env" ]; then
-  source "$SCRIPT_DIR/.env"
+  source "$SCRIPT_DIR/../.env"
 else
   echo -e "${RED}Error: .env file not found in $SCRIPT_DIR${NC}"
   echo -e "${YELLOW}Please create a .env file based on .env.example${NC}"
