@@ -1,19 +1,19 @@
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: t8s
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: {{ .Values.argocd.repository }}
-    targetRevision: {{ .Values.argocd.branch }}
-    path: applications/
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: t8s
-  ignoreDifferences:
-    - group: argoproj.io
-      kind: Application
-      jsonPointers:
-        - /spec/source/helm/parameters
+{{/*apiVersion: argoproj.io/v1alpha1*/}}
+{{/*kind: Application*/}}
+{{/*metadata:*/}}
+{{/*  name: t8s*/}}
+{{/*  namespace: argocd*/}}
+{{/*spec:*/}}
+{{/*  project: default*/}}
+{{/*  source:*/}}
+{{/*    repoURL: {{ .Values.argocd.repository }}*/}}
+{{/*    targetRevision: {{ .Values.argocd.branch }}*/}}
+{{/*    path: applications/*/}}
+{{/*  destination:*/}}
+{{/*    server: https://kubernetes.default.svc*/}}
+{{/*    namespace: t8s*/}}
+{{/*  ignoreDifferences:*/}}
+{{/*    - group: argoproj.io*/}}
+{{/*      kind: Application*/}}
+{{/*      jsonPointers:*/}}
+{{/*        - /spec/source/helm/parameters*/}}
