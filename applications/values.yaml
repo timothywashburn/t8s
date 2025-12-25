@@ -31,7 +31,7 @@ applications:
     path: helm
     values:
       ingress:
-        host: https://d.test.timothyw.dev
+        host: d.test.timothyw.dev
       mongodb:
         port: 30018
     images:
