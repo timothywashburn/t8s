@@ -21,3 +21,24 @@ email:
 google:
   oauth_client_id:
   oauth_client_secret:
+
+# The projects that should be deployed on argo
+applications:
+  - name: example-project
+    namespace: example
+    repoURL: https://github.com/myaccount/myproject
+    branch: main
+    path: helm # the directory that contains the helm chart that should be deployed
+    values: # values to pass to the helm chart
+      ingress:
+        host: d.test2.timothyw.dev
+      mongodb:
+        port: 30018
+#    valuesFile: values-prod.yaml # or specify a values file within the chart
+    images: # a list of images that should be auto configured with argo-image-updater
+      - alias: client
+        image: username/my-client-image # in this example this refers to a dockerhub repo
+        pullSecret: example/dockerhub-registry # needs to be created within the namespace
+      - alias: server
+        image: kyrokrypt/my-server-image
+        pullSecret: example/dockerhub-registry
