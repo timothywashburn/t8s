@@ -1,4 +1,17 @@
-{{- if .Values.infrastructure.longhorn.enabled }}
+{{- if and .Values.google.oauth_client_id .Values.google.oauth_client_secret }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: longhorn-oauth
+  namespace: longhorn-system
+spec:
+  forwardAuth:
+    address: http://oauth2-proxy.longhorn-system.svc.cluster.local:4180
+    trustForwardHeader: true
+    authResponseHeaders:
+      - X-Auth-Request-User
+      - X-Auth-Request-Email
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
@@ -10,8 +23,16 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`{{ .Values.global.longhornDomain }}`)
+      match: Host(`{{ .Values.hosts.longhorn }}`) && PathPrefix(`/oauth2`)
+      priority: 20
+      services:
+        - name: oauth2-proxy
+          port: 4180
+    - kind: Rule
+      match: Host(`{{ .Values.hosts.longhorn }}`)
       priority: 10
+      middlewares:
+        - name: longhorn-oauth
       services:
         - name: longhorn-frontend
           port: 80
@@ -38,7 +59,7 @@ spec:
     - web
   routes:
     - kind: Rule
-      match: Host(`{{ .Values.global.longhornDomain }}`) && !PathPrefix(`/.well-known/acme-challenge/`)
+      match: Host(`{{ .Values.hosts.longhorn }}`) && !PathPrefix(`/.well-known/acme-challenge/`)
       middlewares:
         - name: longhorn-https-redirect
       services:
@@ -53,8 +74,8 @@ metadata:
 spec:
   secretName: longhorn-tls
   issuerRef:
-    name: letsencrypt-prod
+    name: letsencrypt-staging
     kind: ClusterIssuer
   dnsNames:
-    - {{ .Values.global.longhornDomain }}
+    - {{ .Values.hosts.longhorn }}
 {{- end }}

@@ -7,7 +7,11 @@
     kubeconfig: /etc/rancher/k3s/k3s.yaml
 
   tasks:
-    # OAuth2 Proxy Secret for Longhorn
+    - name: Load config.yaml
+      include_vars:
+        file: "{{ playbook_dir }}/../config.yaml"
+        name: config
+
     - name: Check if OAuth2 Proxy secret exists
       command: kubectl -n longhorn-system get secret oauth2-proxy-secret
       register: oauth2_secret_check
@@ -34,8 +38,8 @@
       shell: |
         kubectl create namespace longhorn-system --dry-run=client -o yaml | kubectl apply -f -
         kubectl -n longhorn-system create secret generic oauth2-proxy-secret \
-          --from-literal=client-id='{{ google_oauth_client_id }}' \
-          --from-literal=client-secret='{{ google_oauth_client_secret }}' \
+          --from-literal=client-id='{{ config.google.oauth_client_id }}' \
+          --from-literal=client-secret='{{ config.google.oauth_client_secret }}' \
           --from-literal=cookie-secret='{{ oauth2_cookie_secret | b64decode }}' \
           --dry-run=client -o yaml | kubectl apply -f -
       changed_when: false
@@ -107,21 +111,17 @@
           - "==========================================="
           - ""
           - "ArgoCD:"
-          - "  URL: https://{{ argocd_host }}"
           - "  Username: admin"
           - "  Password: {{ argocd_password.stdout }}"
           - ""
           - "Grafana:"
-          - "  URL: https://{{ grafana_host }}"
           - "  Username: admin"
           - "  Password: {{ grafana_password.stdout }}"
           - ""
-          - "Longhorn:"
-          - "  URL: https://{{ longhorn_host }}"
-          - "  Auth: Google OAuth (login with your Google account)"
-          - ""
           - "Kubernetes Dashboard:"
-          - "  URL: https://{{ dashboard_host }}"
           - "  Token: {{ dashboard_token.stdout }}"
+          - ""
+          - "Longhorn:"
+          - "  Auth: Google OAuth (login with your Google account)"
           - ""
           - "==========================================="

@@ -51,7 +51,7 @@ releases:
             whitelist_domains = [ ".timothyw.dev" ]
         authenticatedEmailsFile:
           enabled: true
-          restricted_access: "{{ .Environment.Values.oauth.google.email }}"
+          restricted_access: "{{ .Environment.Values.email }}"
         ingress:
           enabled: false
         service:
@@ -384,4 +384,4 @@ releases:
       - monitoring/grafana
       - longhorn-system/longhorn
     values:
-      - ./infrastructure/values.yaml
+      - config.yaml

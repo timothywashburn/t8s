@@ -16,6 +16,10 @@ spec:
       valueFiles:
         - {{ .valuesFile }}
       {{- end }}
+      {{- if .values }}
+      values:
+        {{- toYaml .values | nindent 8 }}
+      {{- end }}
       {{- if .images }}
       parameters:
         {{- range .images }}

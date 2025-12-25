@@ -1,0 +1,23 @@
+# Where to access
+argocd:
+  repository:
+  branch:
+
+# Hosts for the respective dashboards that are installed by the project
+hosts:
+  argocd:
+  grafana:
+  dashboard:
+  longhorn:
+
+# The IP that the cluster will use for all ingress routing
+loadBalancerIP:
+
+# Email used for issuing certificates and also the Google oauth if enabled
+email:
+
+# Optionally provide these credentials to create a secure way to access the longhorn dashboard.
+# Without these credentials the dashboard is only accessible via port forwarding.
+google:
+  oauth_client_id:
+  oauth_client_secret:

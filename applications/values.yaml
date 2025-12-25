@@ -29,7 +29,11 @@ applications:
     repoURL: https://github.com/timothywashburn/clubhive
     branch: dev
     path: helm
-    valuesFile: values-dev.yaml
+    values:
+      ingress:
+        host: https://d.test.timothyw.dev
+      mongodb:
+        port: 30018
     images:
       - alias: client
         image: kyrokrypt/clubhive-client-dev
