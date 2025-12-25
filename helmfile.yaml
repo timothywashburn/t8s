@@ -195,11 +195,13 @@ releases:
           enabled: true
           persistence:
             storageClass: longhorn
+            size: 5Gi
         deploymentMode: SingleBinary
         singleBinary:
           replicas: 1
           persistence:
             storageClass: longhorn
+            size: 5Gi
           resources:
             limits:
               cpu: 500m
@@ -287,6 +289,7 @@ releases:
       - persistence:
           type: pvc
           enabled: true
+          size: 2Gi
         service:
           enabled: true
           type: ClusterIP
