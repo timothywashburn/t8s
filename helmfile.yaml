@@ -195,13 +195,13 @@ releases:
           enabled: true
           persistence:
             storageClass: longhorn
-            size: 5Gi
+            size: 4Gi
         deploymentMode: SingleBinary
         singleBinary:
           replicas: 1
           persistence:
             storageClass: longhorn
-            size: 5Gi
+            size: 2Gi
           resources:
             limits:
               cpu: 500m
@@ -262,7 +262,7 @@ releases:
       - server:
           persistentVolume:
             enabled: true
-            size: 10Gi
+            size: 5Gi
             storageClass: longhorn
           extraArgs:
             web.enable-remote-write-receiver: ""
@@ -289,7 +289,7 @@ releases:
       - persistence:
           type: pvc
           enabled: true
-          size: 2Gi
+          size: 1Gi
         service:
           enabled: true
           type: ClusterIP
