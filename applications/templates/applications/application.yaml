@@ -17,8 +17,8 @@ spec:
         - {{ .valuesFile }}
       {{- end }}
       {{- if .values }}
-      values:
-        {{- toYaml .values | nindent 8 }}
+      values: |
+{{ toYaml .values | indent 8 }}
       {{- end }}
       {{- if .images }}
       parameters:
