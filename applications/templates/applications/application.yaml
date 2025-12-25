@@ -37,4 +37,9 @@ spec:
       kind: PersistentVolumeClaim
       jsonPointers:
         - /spec/storageClassName
+    - group: ""
+      kind: Secret
+      jsonPointers:
+        - /data
+        - /stringData
 {{- end }}
