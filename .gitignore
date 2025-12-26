@@ -5,3 +5,7 @@ ignore-*
 config.yaml
 .env
 inventory.ini
+clusters/*.yaml
+clusters/*.ini
+!clusters/example.yaml
+!clusters/example.ini

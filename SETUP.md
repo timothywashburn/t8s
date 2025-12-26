@@ -3,42 +3,68 @@
 ## Prerequisites
 
 - Ansible installed locally
+- kubectl installed locally
+- Helmfile installed locally
 
-## Step 1: System Configuration and Setup
+## Step 1: Cluster Configuration
 
-Copy `ansible/inventory.example.ini` to `ansible/inventory.ini` and add your server IP and SSH user:
+Copy the following files:
+* `clusters/example.ini` → `clusters/default.ini`
+* `clusters/example.yaml` → `clusters/default.yaml`
 
-Test connectivity:
+Fill out the `.ini` file with details about your control plane and worker nodes (if any), and fill out the `.yaml` file with cluster settings and projects.
+
+## Step 2: DNS Configuration
+
+Point DNS records to the `loadBalancerIP` specified in the config.
+
+Example A Records:
+- `argo.example.com` → `loadBalancerIP`
+- `k8s.example.com` → `loadBalancerIP`
+- `grafana.example.com` → `loadBalancerIP`
+- `longhorn.example.com` → `loadBalancerIP`
+
+
+## Step 3: Cluster Setup
+
+Test if ansible can connect to the servers:
 
 ```bash
-cd ansible/
-ansible all -m ping
+ansible -i clusters/default.ini all -m ping
 ```
 
 Run the playbook to set up K3s:
 
 ```bash
-ansible-playbook setup-k3s.yml
+ansible-playbook -i clusters/default.ini setup-k3s.yml
 ```
 
-## Step 2: Configure Local kubectl Access
+## Step 4: Configure Local kubectl Access
 
 Setup local access to use `kubectl`. The following script can do so automatically but requires the control plane to be accessible at a public ip, and have a ssh server accessible via public key (no password auth) at port 22.
 
-[//]: # (doesn't work with ports/didn't work with wiji's server at all)
 ```bash
 ./scripts/setup-kubeconfig.sh USER@VPS_IP CONTEXT_NAME
 ```
 
-## Step 3: Infrastructure Configuration and Setup
+Port forward the api to your local machine if necessary using:
 
-Copy `config.example.yaml` to `config.yaml` and fill out configuration. The 
+```bash
+autossh -M 0 -fN -L <local_port>:localhost:6443 <username@host>
+```
 
-## Step 2: DNS Configuration
+## Step 5: Install dependencies
 
-Point DNS records to cluster's external IP based on the hosts set in `config.yaml`.
+Install the project dependencies via:
 
-Example A Records:
-- `argo.timothyw.dev` → `EXTERNAL_IP`
-- `k8s.timothyw.dev` → `EXTERNAL_IP`
-- `grafana.timothyw.dev` → `EXTERNAL_IP`
+```bash
+CLUSTER=default helmfile sync
+```
+
+## Step 6: Configure dependencies
+
+Configure the project dependencies via:
+
+```bash
+ansible-playbook -i clusters/default.ini ansible/configure-infrastructure.yml
+```

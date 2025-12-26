@@ -9,14 +9,18 @@ YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-CONNECTION_STRING="${1}"
-CONTEXT_NAME="${2}"
+# Get CONNECTION_STRING (USER@IP)
+if [ -n "$1" ]; then
+  CONNECTION_STRING="$1"
+  echo -e "${GREEN}Using connection string: ${CONNECTION_STRING}${NC}"
+else
+  echo -e "${YELLOW}Enter the connection string (USER@IP):${NC}"
+  read -r CONNECTION_STRING
 
-if [[ -z "$CONNECTION_STRING" ]] || [[ -z "$CONTEXT_NAME" ]]; then
-    echo -e "${RED}Usage: $0 USER@VPS_IP CONTEXT_NAME${NC}"
-    echo -e "${YELLOW}Example: $0 root@192.168.1.100 vps${NC}"
-    echo -e "${YELLOW}Example: $0 client_3982_1@64.71.152.179 production${NC}"
+  if [ -z "$CONNECTION_STRING" ]; then
+    echo -e "${RED}Error: Connection string cannot be empty${NC}"
     exit 1
+  fi
 fi
 
 if [[ ! "$CONNECTION_STRING" =~ ^([^@]+)@(.+)$ ]]; then
@@ -25,6 +29,34 @@ if [[ ! "$CONNECTION_STRING" =~ ^([^@]+)@(.+)$ ]]; then
 fi
 VPS_USER="${BASH_REMATCH[1]}"
 VPS_IP="${BASH_REMATCH[2]}"
+
+# Get CONTEXT_NAME
+if [ -n "$2" ]; then
+  CONTEXT_NAME="$2"
+  echo -e "${GREEN}Using context name: ${CONTEXT_NAME}${NC}"
+else
+  echo -e "${YELLOW}Enter the context name:${NC}"
+  read -r CONTEXT_NAME
+
+  if [ -z "$CONTEXT_NAME" ]; then
+    echo -e "${RED}Error: Context name cannot be empty${NC}"
+    exit 1
+  fi
+fi
+
+# Get PORT (optional, defaults to 6443)
+if [ -n "$3" ]; then
+  PORT="$3"
+  echo -e "${GREEN}Using port: ${PORT}${NC}"
+else
+  echo -e "${YELLOW}Enter the port (press Enter for default 6443):${NC}"
+  read -r PORT
+
+  if [ -z "$PORT" ]; then
+    PORT="6443"
+    echo -e "${GREEN}Using default port: ${PORT}${NC}"
+  fi
+fi
 
 if [[ -f ~/.kube/config ]]; then
     echo -e "${YELLOW}Backing up existing kubeconfig${NC}"
@@ -45,7 +77,7 @@ echo "$CLIENT_KEY_DATA" | base64 -d > /tmp/client.key
 
 echo -e "${BLUE}Adding new context to kubeconfig${NC}"
 kubectl config set-cluster "$CONTEXT_NAME" \
-  --server=https://127.0.0.1:6443 \
+  --server=https://127.0.0.1:${PORT} \
   --certificate-authority=/tmp/ca.crt \
   --embed-certs=true
 kubectl config set-credentials "$CONTEXT_NAME" \

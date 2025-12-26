@@ -5,11 +5,12 @@
 
   vars:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
+    cluster_name: "{{ inventory_file | basename | regex_replace('\\.ini$', '') }}"
 
   tasks:
-    - name: Load config.yaml
+    - name: Load cluster config
       include_vars:
-        file: "{{ playbook_dir }}/../config.yaml"
+        file: "{{ playbook_dir }}/../clusters/{{ cluster_name }}.yaml"
         name: config
 
     - name: Check if OAuth2 Proxy secret exists
@@ -122,6 +123,6 @@
           - "  Token: {{ dashboard_token.stdout }}"
           - ""
           - "Longhorn:"
-          - "  Auth: Google OAuth (login with your Google account)"
+          - "  Auth: Google ({{ config.email }})"
           - ""
           - "==========================================="
