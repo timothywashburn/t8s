@@ -38,6 +38,10 @@ releases:
     values:
       - persistence:
           defaultClass: true
+        defaultBackupStore:
+          backupTarget: {{ if .Environment.Values.longhorn.r2.bucket_name }}s3://{{ .Environment.Values.longhorn.r2.bucket_name }}@auto/{{ else }}null{{ end }}
+          backupTargetCredentialSecret: {{ if .Environment.Values.longhorn.r2.bucket_name }}longhorn-r2-backups{{ else }}null{{ end }}
+          pollInterval: {{ if .Environment.Values.longhorn.r2.bucket_name }}300{{ else }}null{{ end }}
 
   - name: oauth2-proxy
     namespace: longhorn-system

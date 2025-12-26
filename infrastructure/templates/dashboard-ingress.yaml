@@ -62,7 +62,7 @@ metadata:
 spec:
   secretName: dashboard-tls
   issuerRef:
-    name: letsencrypt-prod
+    name: {{ .Values.certIssuer }}
     kind: ClusterIssuer
   dnsNames:
     - {{ .Values.hosts.dashboard }}

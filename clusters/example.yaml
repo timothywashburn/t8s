@@ -11,11 +11,22 @@ loadBalancerIP:
 # Email used for issuing certificates and also the Google oauth if enabled
 email:
 
+# Certificate issuer to use (letsencrypt-prod or letsencrypt-staging)
+certIssuer: letsencrypt-prod
+
 # Optionally provide these credentials to create a secure way to access the longhorn dashboard.
 # Without these credentials the dashboard is only accessible via port forwarding.
 google:
   oauth_client_id:
   oauth_client_secret:
+
+# Optionally provide Cloudflare R2 credentials for Longhorn backups.
+longhorn:
+  r2:
+    access_key_id:
+    secret_access_key:
+    account_id: # Your Cloudflare account ID for the R2 endpoint
+    bucket_name: # The R2 bucket name for backups (e.g., longhorn-backups)
 
 # The projects that should be deployed on argo
 applications:

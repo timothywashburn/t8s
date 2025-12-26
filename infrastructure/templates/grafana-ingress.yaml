@@ -52,7 +52,7 @@ metadata:
 spec:
   secretName: grafana-tls
   issuerRef:
-    name: letsencrypt-prod
+    name: {{ .Values.certIssuer }}
     kind: ClusterIssuer
   dnsNames:
     - {{ .Values.hosts.grafana }}

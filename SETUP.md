@@ -36,21 +36,21 @@ ansible -i clusters/default.ini all -m ping
 Run the playbook to set up K3s:
 
 ```bash
-ansible-playbook -i clusters/default.ini setup-k3s.yml
+ansible-playbook -i clusters/default.ini ansible/setup-k3s.yml
 ```
 
 ## Step 4: Configure Local kubectl Access
-
-Setup local access to use `kubectl`. The following script can do so automatically but requires the control plane to be accessible at a public ip, and have a ssh server accessible via public key (no password auth) at port 22.
-
-```bash
-./scripts/setup-kubeconfig.sh USER@VPS_IP CONTEXT_NAME
-```
 
 Port forward the api to your local machine if necessary using:
 
 ```bash
 autossh -M 0 -fN -L <local_port>:localhost:6443 <username@host>
+```
+
+Setup local access to use `kubectl`. The following script can do so automatically but requires the control plane to be accessible at a public ip, and have a ssh server accessible via public key (no password auth) at port 22.
+
+```bash
+./scripts/setup-kubeconfig.sh USER@VPS_IP CONTEXT_NAME
 ```
 
 ## Step 5: Install dependencies

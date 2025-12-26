@@ -45,6 +45,24 @@
           --dry-run=client -o yaml | kubectl apply -f -
       changed_when: false
 
+    - name: Create Longhorn R2 backup secret
+      shell: |
+        kubectl -n longhorn-system create secret generic longhorn-r2-backups \
+          --from-literal=AWS_ACCESS_KEY_ID='{{ config.longhorn.r2.access_key_id }}' \
+          --from-literal=AWS_SECRET_ACCESS_KEY='{{ config.longhorn.r2.secret_access_key }}' \
+          --from-literal=AWS_ENDPOINTS='https://{{ config.longhorn.r2.account_id }}.r2.cloudflarestorage.com' \
+          --dry-run=client -o yaml | kubectl apply -f -
+      changed_when: false
+      when:
+        - config.longhorn.r2.access_key_id is defined
+        - config.longhorn.r2.access_key_id | length > 0
+        - config.longhorn.r2.secret_access_key is defined
+        - config.longhorn.r2.secret_access_key | length > 0
+        - config.longhorn.r2.account_id is defined
+        - config.longhorn.r2.account_id | length > 0
+        - config.longhorn.r2.bucket_name is defined
+        - config.longhorn.r2.bucket_name | length > 0
+
     # ArgoCD Image Updater Token and Secret Setup
     - name: Copy image-updater token generation script
       copy:
