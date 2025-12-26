@@ -1,8 +1,8 @@
 environments:
   default:
     values:
-      - config.yaml
-
+      - clusters/{{ requiredEnv "CLUSTER" }}.yaml
+---
 repositories:
   - name: metallb
     url: https://metallb.github.io/metallb
@@ -22,11 +22,19 @@ repositories:
     url: https://oauth2-proxy.github.io/manifests
 
 releases:
+  - name: metallb
+    namespace: metallb-system
+    createNamespace: true
+    chart: metallb/metallb
+    version: 0.15.3
+
   - name: longhorn
     namespace: longhorn-system
     createNamespace: true
     chart: longhorn/longhorn
     version: 1.10.1
+    needs:
+      - metallb-system/metallb
     values:
       - persistence:
           defaultClass: true
@@ -58,12 +66,6 @@ releases:
           type: ClusterIP
           portNumber: 4180
 
-  - name: metallb
-    namespace: metallb-system
-    createNamespace: true
-    chart: metallb/metallb
-    version: 0.15.3
-
   - name: cert-manager
     namespace: cert-manager
     createNamespace: true
@@ -82,12 +84,16 @@ releases:
     createNamespace: true
     chart: kubernetes-dashboard/kubernetes-dashboard
     version: 7.14.0
+    needs:
+      - metallb-system/metallb
 
   - name: argocd
     namespace: argocd
     createNamespace: true
     chart: argo/argo-cd
     version: 9.2.1
+    needs:
+      - metallb-system/metallb
     values:
       - server:
           insecure: true
@@ -159,6 +165,8 @@ releases:
     createNamespace: true
     chart: grafana/loki
     version: 6.49.0
+    needs:
+      - longhorn-system/longhorn
     values:
       - loki:
           auth_enabled: false
@@ -258,6 +266,8 @@ releases:
     namespace: monitoring
     chart: prometheus-community/prometheus
     version: 27.52.0
+    needs:
+      - longhorn-system/longhorn
     values:
       - server:
           persistentVolume:
@@ -285,6 +295,8 @@ releases:
     needs:
       - monitoring/loki
       - monitoring/prometheus
+      - longhorn-system/longhorn
+      - metallb-system/metallb
     values:
       - persistence:
           type: pvc
@@ -384,4 +396,4 @@ releases:
       - monitoring/grafana
       - longhorn-system/longhorn
     values:
-      - config.yaml
+      - clusters/{{ requiredEnv "CLUSTER" }}.yaml
