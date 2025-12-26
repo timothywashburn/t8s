@@ -53,17 +53,11 @@ releases:
             redirect_url = "https://{{ .Environment.Values.hosts.longhorn }}/oauth2/callback"
             upstreams = [ "static://202" ]
             email_domains = [ "gmail.com" ]
-            cookie_secure = true
-            cookie_httponly = true
-            cookie_samesite = "lax"
             whitelist_domains = [ ".timothyw.dev" ]
         authenticatedEmailsFile:
           enabled: true
           restricted_access: "{{ .Environment.Values.email }}"
-        ingress:
-          enabled: false
         service:
-          type: ClusterIP
           portNumber: 4180
 
   - name: cert-manager
