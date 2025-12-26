@@ -74,7 +74,7 @@ metadata:
 spec:
   secretName: longhorn-tls
   issuerRef:
-    name: letsencrypt-staging
+    name: letsencrypt-prod
     kind: ClusterIssuer
   dnsNames:
     - {{ .Values.hosts.longhorn }}
