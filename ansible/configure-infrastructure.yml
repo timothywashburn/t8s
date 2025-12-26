@@ -54,14 +54,10 @@
           --dry-run=client -o yaml | kubectl apply -f -
       changed_when: false
       when:
-        - config.longhorn.r2.access_key_id is defined
-        - config.longhorn.r2.access_key_id | length > 0
-        - config.longhorn.r2.secret_access_key is defined
-        - config.longhorn.r2.secret_access_key | length > 0
-        - config.longhorn.r2.account_id is defined
-        - config.longhorn.r2.account_id | length > 0
-        - config.longhorn.r2.bucket_name is defined
-        - config.longhorn.r2.bucket_name | length > 0
+        - config.longhorn.r2.access_key_id | default('', true) | length > 0
+        - config.longhorn.r2.secret_access_key | default('', true) | length > 0
+        - config.longhorn.r2.account_id | default('', true) | length > 0
+        - config.longhorn.r2.bucket_name | default('', true) | length > 0
 
     # ArgoCD Image Updater Token and Secret Setup
     - name: Copy image-updater token generation script
