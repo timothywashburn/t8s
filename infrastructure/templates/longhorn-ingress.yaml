@@ -1,4 +1,4 @@
-{{- if and .Values.google.oauth_client_id .Values.google.oauth_client_secret }}
+{{- if and .Values.longhorn.ingress_and_auth.enabled }}
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
@@ -74,7 +74,7 @@ metadata:
 spec:
   secretName: longhorn-tls
   issuerRef:
-    name: {{ .Values.certIssuer }}
+    name: {{ .Values.cert_manager.cert_issuer }}
     kind: ClusterIssuer
   dnsNames:
     - {{ .Values.hosts.longhorn }}

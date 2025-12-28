@@ -2,26 +2,26 @@
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: grafana
-  namespace: monitoring
+  name: authentik
+  namespace: authentik
 spec:
   entryPoints:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`{{ .Values.hosts.grafana }}`)
+      match: Host(`{{ .Values.hosts.authentik }}`)
       priority: 10
       services:
-        - name: grafana
+        - name: authentik-server
           port: 80
   tls:
-    secretName: grafana-tls
+    secretName: authentik-tls
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
-  name: grafana-https-redirect
-  namespace: monitoring
+  name: authentik-https-redirect
+  namespace: authentik
 spec:
   redirectScheme:
     scheme: https
@@ -30,29 +30,29 @@ spec:
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: grafana-http
-  namespace: monitoring
+  name: authentik-http
+  namespace: authentik
 spec:
   entryPoints:
     - web
   routes:
     - kind: Rule
-      match: Host(`{{ .Values.hosts.grafana }}`) && !PathPrefix(`/.well-known/acme-challenge/`)
+      match: Host(`{{ .Values.hosts.authentik }}`) && !PathPrefix(`/.well-known/acme-challenge/`)
       middlewares:
-        - name: grafana-https-redirect
+        - name: authentik-https-redirect
       services:
-        - name: grafana
+        - name: authentik-server
           port: 80
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: grafana-tls
-  namespace: monitoring
+  name: authentik-tls
+  namespace: authentik
 spec:
-  secretName: grafana-tls
+  secretName: authentik-tls
   issuerRef:
     name: {{ .Values.cert_manager.cert_issuer }}
     kind: ClusterIssuer
   dnsNames:
-    - {{ .Values.hosts.grafana }}
+    - {{ .Values.hosts.authentik }}

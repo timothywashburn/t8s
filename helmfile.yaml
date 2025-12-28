@@ -20,6 +20,8 @@ repositories:
     url: https://charts.longhorn.io
   - name: oauth2-proxy
     url: https://oauth2-proxy.github.io/manifests
+  - name: goauthentik
+    url: https://charts.goauthentik.io
 
 releases:
   - name: metallb
@@ -47,20 +49,21 @@ releases:
     namespace: longhorn-system
     chart: oauth2-proxy/oauth2-proxy
     version: 8.5.1
+    installed: {{ if .Environment.Values.longhorn.ingress_and_auth.enabled }}true{{ else }}false{{ end }}
     needs:
       - longhorn-system/longhorn
+      - authentik/authentik
     values:
       - config:
-          existingSecret: oauth2-proxy-secret
+          clientID: "{{ .Environment.Values.longhorn.ingress_and_auth.oauth_client_id }}"
+          clientSecret: "{{ .Environment.Values.longhorn.ingress_and_auth.oauth_client_secret }}"
+          cookieSecret: "{{ .Environment.Values.longhorn.ingress_and_auth.cookie_secret }}"
           configFile: |
-            provider = "google"
+            provider = "oidc"
+            oidc_issuer_url = "https://{{ .Environment.Values.hosts.authentik }}/application/o/longhorn/"
             redirect_url = "https://{{ .Environment.Values.hosts.longhorn }}/oauth2/callback"
             upstreams = [ "static://202" ]
-            email_domains = [ "gmail.com" ]
-            whitelist_domains = [ ".timothyw.dev" ]
-        authenticatedEmailsFile:
-          enabled: true
-          restricted_access: "{{ .Environment.Values.email }}"
+            email_domains = [ "*" ]
         service:
           portNumber: 4180
 
@@ -383,6 +386,49 @@ releases:
         selfReporting:
           enabled: true
 
+  - name: authentik
+    namespace: authentik
+    createNamespace: true
+    chart: goauthentik/authentik
+    version: 2025.10.3
+    needs:
+      - metallb-system/metallb
+      - longhorn-system/longhorn
+    values:
+      - authentik:
+          secret_key: {{ .Environment.Values.authentik.secret_key }}
+          error_reporting:
+            enabled: false
+          postgresql:
+            password: {{ .Environment.Values.authentik.postgresql.password }}
+        postgresql:
+          enabled: true
+          auth:
+            password: {{ .Environment.Values.authentik.postgresql.password }}
+          primary:
+            persistence:
+              enabled: true
+              size: 2Gi
+              storageClass: longhorn
+        server:
+          ingress:
+            enabled: false
+          metrics:
+            enabled: true
+            service:
+              annotations:
+                prometheus.io/scrape: "true"
+                prometheus.io/port: "9300"
+                prometheus.io/path: "/metrics"
+        worker:
+          metrics:
+            enabled: true
+            service:
+              annotations:
+                prometheus.io/scrape: "true"
+                prometheus.io/port: "9300"
+                prometheus.io/path: "/metrics"
+
   - name: t8s-infrastructure
     namespace: t8s
     createNamespace: true
@@ -393,5 +439,6 @@ releases:
       - argocd/argocd
       - monitoring/grafana
       - longhorn-system/longhorn
+      - authentik/authentik
     values:
       - clusters/{{ requiredEnv "CLUSTER" }}.yaml

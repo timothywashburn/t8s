@@ -59,7 +59,7 @@ metadata:
 spec:
   secretName: argocd-tls
   issuerRef:
-    name: {{ .Values.certIssuer }}
+    name: {{ .Values.cert_manager.cert_issuer }}
     kind: ClusterIssuer
   dnsNames:
     - {{ .Values.hosts.argocd }}

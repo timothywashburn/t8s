@@ -8,13 +8,13 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: {{ .repoURL }}
+    repo_url: {{ .repo_url }}
     path: {{ .path }}
     targetRevision: {{ .branch }}
     helm:
-      {{- if .valuesFile }}
+      {{- if .values_file }}
       valueFiles:
-        - {{ .valuesFile }}
+        - {{ .values_file }}
       {{- end }}
       {{- if .values }}
       values: |

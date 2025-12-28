@@ -18,7 +18,7 @@ spec:
           imageName: "{{ .image }}:latest"
           commonUpdateSettings:
             updateStrategy: "newest-build"
-            pullSecret: "pullsecret:{{ .pullSecret }}"
+            pullSecret: "pullsecret:{{ .pull_secret }}"
             allowTags: "regexp:^[0-9a-f]{40}$"
           manifestTargets:
             helm:

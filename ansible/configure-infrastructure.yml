@@ -8,42 +8,10 @@
     cluster_name: "{{ inventory_file | basename | regex_replace('\\.ini$', '') }}"
 
   tasks:
-    - name: Load cluster config
+    - name: Load config
       include_vars:
         file: "{{ playbook_dir }}/../clusters/{{ cluster_name }}.yaml"
         name: config
-
-    - name: Check if OAuth2 Proxy secret exists
-      command: kubectl -n longhorn-system get secret oauth2-proxy-secret
-      register: oauth2_secret_check
-      failed_when: false
-      changed_when: false
-
-    - name: Generate OAuth2 Proxy cookie secret
-      set_fact:
-        oauth2_cookie_secret: "{{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') | b64encode }}"
-      when: oauth2_secret_check.rc != 0
-
-    - name: Retrieve existing OAuth2 Proxy cookie secret
-      shell: kubectl -n longhorn-system get secret oauth2-proxy-secret -o jsonpath='{.data.cookie-secret}' | base64 -d
-      register: existing_oauth2_secret
-      when: oauth2_secret_check.rc == 0
-      changed_when: false
-
-    - name: Set OAuth2 cookie secret from existing
-      set_fact:
-        oauth2_cookie_secret: "{{ existing_oauth2_secret.stdout | b64encode }}"
-      when: oauth2_secret_check.rc == 0
-
-    - name: Create OAuth2 Proxy secret
-      shell: |
-        kubectl create namespace longhorn-system --dry-run=client -o yaml | kubectl apply -f -
-        kubectl -n longhorn-system create secret generic oauth2-proxy-secret \
-          --from-literal=client-id='{{ config.google.oauth_client_id }}' \
-          --from-literal=client-secret='{{ config.google.oauth_client_secret }}' \
-          --from-literal=cookie-secret='{{ oauth2_cookie_secret | b64decode }}' \
-          --dry-run=client -o yaml | kubectl apply -f -
-      changed_when: false
 
     - name: Create Longhorn R2 backup secret
       shell: |
@@ -53,11 +21,7 @@
           --from-literal=AWS_ENDPOINTS='https://{{ config.longhorn.r2.account_id }}.r2.cloudflarestorage.com' \
           --dry-run=client -o yaml | kubectl apply -f -
       changed_when: false
-      when:
-        - config.longhorn.r2.access_key_id | default('', true) | length > 0
-        - config.longhorn.r2.secret_access_key | default('', true) | length > 0
-        - config.longhorn.r2.account_id | default('', true) | length > 0
-        - config.longhorn.r2.bucket_name | default('', true) | length > 0
+      when: config.longhorn.r2.enabled
 
     # ArgoCD Image Updater Token and Secret Setup
     - name: Copy image-updater token generation script
@@ -126,17 +90,24 @@
           - "==========================================="
           - ""
           - "ArgoCD:"
+          - "  URL: https://{{ config.hosts.argocd }}"
           - "  Username: admin"
           - "  Password: {{ argocd_password.stdout }}"
           - ""
           - "Grafana:"
+          - "  URL: https://{{ config.hosts.grafana }}"
           - "  Username: admin"
           - "  Password: {{ grafana_password.stdout }}"
           - ""
           - "Kubernetes Dashboard:"
+          - "  URL: https://{{ config.hosts.dashboard }}"
           - "  Token: {{ dashboard_token.stdout }}"
           - ""
           - "Longhorn:"
-          - "  Auth: Google ({{ config.email }})"
+          - "  URL: https://{{ config.hosts.longhorn }}"
+          - "  Auth: {% if config.longhorn.ingress_and_auth.enabled %}Authentik{% else %}Not enabled{% endif %}"
+          - ""
+          - "Authentik:"
+          - "  URL: https://{{ config.hosts.authentik }}/if/flow/initial-setup/"
           - ""
           - "==========================================="

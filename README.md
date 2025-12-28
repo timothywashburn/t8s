@@ -7,6 +7,7 @@ A project management tool designed to help deploy ArgoCD compatible projects qui
 - Automated K3s cluster deployment
 - Automatic SSL certificate creation
 - Longhorn for persistent storage and volume management
+- Authentik for identity management and single sign-on
 - Kubernetes Dashboard for visual cluster management
 - ArgoCD for GitOps-based application deployment
 - ArgoCD Image Updater for automatic container image updates
@@ -14,4 +15,4 @@ A project management tool designed to help deploy ArgoCD compatible projects qui
 
 ## Getting Started
 
-Follow the instructions in [setup.md](setup.md)
+To get started using t8s, clone this project locally, and refer to the setup instructions in [setup.md](setup.md).
