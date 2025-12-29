@@ -32,12 +32,10 @@ longhorn:
     bucket_name: # The R2 bucket name for backups (e.g., longhorn-backups)
 
 # Authentik Identity Provider configuration
-# secret_key: Generate a 50-character random key (e.g., using: openssl rand -base64 50)
-# postgresql.password: Generate a strong password for the PostgreSQL database
 authentik:
-  secret_key: # REQUIRED: 50+ character secret key for cookie signing and user IDs
+  secret_key: # openssl rand -base64 50
   postgresql:
-    password: # REQUIRED: PostgreSQL database password
+    password: # openssl rand -base64 32
 
 # The projects that should be deployed on argo
 applications:

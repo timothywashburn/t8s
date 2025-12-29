@@ -10,7 +10,23 @@ Do this by visiting `https://your.domain.com/if/flow/initial-setup/`. Use tempor
 
 ### 2. Setup User Account
 
-The default admin account has restrictions such as the inability to change its username, so it is recommended to immediately create another user account that can be elevated to admin, and then to disable this initial account. The new account will serve as your admin account.
+The default admin account has restrictions such as the inability to change its username, so it is recommended to immediately create another user account that can be elevated to admin, and then to disable this initial account.
+
+1. Navigate to **Users**
+2. Click **New User**
+3. Configure the user:
+   - **Username**: `<username>`
+   - **Display Name**: `<display_name>`
+   - **User type**: `Internal`
+   - **Email Address**: `<email>`
+4. Click **Create User**
+5. Click on the **user**
+6. Click **Set password** and set a password
+7. Navigate to **Groups** → **Add to existing group**
+8. Add the user to the `authentik Admins` group
+9. Sign in to the **user account**
+10. Navigate to **Users** → **akadmin**
+11. Deactivate the `akadmin` user
 
 ### 3. Create an OAuth2/OIDC Provider
 
@@ -19,7 +35,7 @@ The default admin account has restrictions such as the inability to change its u
 3. Click **Create** and select **OAuth2/OpenID Provider**
 4. Configure the provider:
    - **Name**: `longhorn`
-   - **Authorization flow**: `default-provider-authorization-implicit-consent`
+   - **Authorization flow**: `default-provider-authorization-explicit-consent`
    - **Redirect URIs/Origins**: `https://<longhorn-host>/oauth2/callback`
 5. Click **Finish**
 
@@ -67,7 +83,7 @@ longhorn:
 Re-run helmfile to apply the changes:
 
 ```bash
-CLUSTER=<cluster-name> helmfile sync
+CLUSTER=<cluster-name> helmfile apply
 ```
 
 ## Additional Setup Configuration
