@@ -52,7 +52,6 @@ releases:
     installed: {{ if .Environment.Values.longhorn.ingress_and_auth.enabled }}true{{ else }}false{{ end }}
     needs:
       - longhorn-system/longhorn
-      - authentik/authentik
     values:
       - config:
           clientID: "{{ .Environment.Values.longhorn.ingress_and_auth.oauth_client_id }}"
@@ -212,12 +211,12 @@ releases:
             storageClass: longhorn
             size: 2Gi
           resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
             limits:
               cpu: 500m
-              memory: 1Gi
-            requests:
-              cpu: 200m
-              memory: 500Mi
+              memory: 512Mi
           extraEnv:
             - name: GOMEMLIMIT
               value: 750MiB
