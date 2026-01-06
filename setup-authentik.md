@@ -6,7 +6,10 @@ Authentik is installed automatically by this project, and it is recommended to u
 
 ### 1. Setup Initial Account
 
-Do this by visiting `https://your.domain.com/if/flow/initial-setup/`. Use temporary information as the account will be disabled in the next step.
+Do this by visiting `https://your.domain.com/if/flow/initial-setup/`. Use temporary information as the account will be disabled in the next step. If this doesn't work create a recovery code using:
+```bash
+kubectl exec -n authentik -it deployment/authentik-worker -- ak create_recovery_key 10 akadmin
+```
 
 ### 2. Setup User Account
 
@@ -35,7 +38,7 @@ The default admin account has restrictions such as the inability to change its u
 3. Click **Create** and select **OAuth2/OpenID Provider**
 4. Configure the provider:
    - **Name**: `longhorn`
-   - **Authorization flow**: `default-provider-authorization-explicit-consent`
+   - **Authorization flow**: `default-provider-authorization-implicit-consent`
    - **Redirect URIs/Origins**: `https://<longhorn-host>/oauth2/callback`
 5. Click **Finish**
 
