@@ -40,6 +40,9 @@ releases:
     values:
       - persistence:
           defaultClass: true
+          defaultClassReplicaCount: {{ .Environment.Values.longhorn.replica_count }}
+        defaultSettings:
+          defaultReplicaCount: {{ .Environment.Values.longhorn.replica_count }}
         defaultBackupStore:
           backupTarget: {{ if .Environment.Values.longhorn.r2.bucket_name }}s3://{{ .Environment.Values.longhorn.r2.bucket_name }}@auto/{{ else }}null{{ end }}
           backupTargetCredentialSecret: {{ if .Environment.Values.longhorn.r2.bucket_name }}longhorn-r2-backups{{ else }}null{{ end }}
@@ -215,8 +218,8 @@ releases:
               cpu: 100m
               memory: 256Mi
             limits:
-              cpu: 500m
-              memory: 512Mi
+              cpu: 1000m
+              memory: 1Gi
           extraEnv:
             - name: GOMEMLIMIT
               value: 750MiB
@@ -419,6 +422,13 @@ releases:
                 prometheus.io/scrape: "true"
                 prometheus.io/port: "9300"
                 prometheus.io/path: "/metrics"
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
         worker:
           metrics:
             enabled: true
@@ -427,6 +437,13 @@ releases:
                 prometheus.io/scrape: "true"
                 prometheus.io/port: "9300"
                 prometheus.io/path: "/metrics"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
 
   - name: t8s-infrastructure
     namespace: t8s
