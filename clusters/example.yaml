@@ -16,6 +16,8 @@ cert_manager:
   cert_issuer: letsencrypt-prod
 
 longhorn:
+  # the number of times a volume gets replicated across the cluster (cannot be less than number of nodes)
+  replica_count: 3
   # Optionally provide these credentials from authentik to create a secure way to access the longhorn dashboard.
   # Without these credentials the dashboard is only accessible via port forwarding.
   ingress_and_auth:
