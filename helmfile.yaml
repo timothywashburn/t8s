@@ -154,7 +154,7 @@ releases:
             plaintext: false
         extraArgs:
           - --interval
-          - 30s
+          - 5s
         metrics:
           enabled: true
           service:
