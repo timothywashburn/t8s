@@ -6,8 +6,8 @@ environments:
 repositories:
   - name: metallb
     url: https://metallb.github.io/metallb
-  - name: kubernetes-dashboard
-    url: https://kubernetes.github.io/dashboard/
+#  - name: kubernetes-dashboard
+#    url: https://kubernetes.github.io/dashboard/
   - name: argo
     url: https://argoproj.github.io/argo-helm
   - name: grafana
@@ -82,13 +82,13 @@ releases:
           servicemonitor:
             enabled: false
 
-  - name: kubernetes-dashboard
-    namespace: kubernetes-dashboard
-    createNamespace: true
-    chart: kubernetes-dashboard/kubernetes-dashboard
-    version: 7.14.0
-    needs:
-      - metallb-system/metallb
+#  - name: kubernetes-dashboard
+#    namespace: kubernetes-dashboard
+#    createNamespace: true
+#    chart: kubernetes-dashboard/kubernetes-dashboard
+#    version: 7.14.0
+#    needs:
+#      - metallb-system/metallb
 
   - name: argocd
     namespace: argocd
