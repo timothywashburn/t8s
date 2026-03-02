@@ -55,15 +55,6 @@
       changed_when: false
       failed_when: false
 
-    - name: Wait for Kubernetes Dashboard secret to exist
-      command: kubectl -n kubernetes-dashboard get secret admin-user-token
-      register: dashboard_secret_check
-      until: dashboard_secret_check.rc == 0
-      retries: 30
-      delay: 10
-      changed_when: false
-      failed_when: false
-
     - name: Retrieve ArgoCD password
       shell: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
       register: argocd_password
@@ -75,12 +66,6 @@
       register: grafana_password
       changed_when: false
       when: grafana_secret_check.rc == 0
-
-#    - name: Retrieve Kubernetes Dashboard token
-#      shell: kubectl -n kubernetes-dashboard get secret admin-user-token -o jsonpath='{.data.token}' | base64 -d
-#      register: dashboard_token
-#      changed_when: false
-#      when: dashboard_secret_check.rc == 0
 
     - name: Display credentials
       debug:
@@ -98,10 +83,6 @@
           - "  URL: https://{{ config.hosts.grafana }}"
           - "  Username: admin"
           - "  Password: {{ grafana_password.stdout }}"
-          - ""
-          - "Kubernetes Dashboard:"
-          - "  URL: https://{{ config.hosts.dashboard }}"
-          - "  Token: {{ dashboard_token.stdout }}"
           - ""
           - "Longhorn:"
           - "  URL: https://{{ config.hosts.longhorn }}"
