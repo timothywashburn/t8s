@@ -76,11 +76,11 @@
       changed_when: false
       when: grafana_secret_check.rc == 0
 
-    - name: Retrieve Kubernetes Dashboard token
-      shell: kubectl -n kubernetes-dashboard get secret admin-user-token -o jsonpath='{.data.token}' | base64 -d
-      register: dashboard_token
-      changed_when: false
-      when: dashboard_secret_check.rc == 0
+#    - name: Retrieve Kubernetes Dashboard token
+#      shell: kubectl -n kubernetes-dashboard get secret admin-user-token -o jsonpath='{.data.token}' | base64 -d
+#      register: dashboard_token
+#      changed_when: false
+#      when: dashboard_secret_check.rc == 0
 
     - name: Display credentials
       debug:
