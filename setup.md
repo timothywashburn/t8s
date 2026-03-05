@@ -23,7 +23,6 @@ Point DNS records to the `load_balancer_ip` specified in the config.
 
 Example A Records:
 - `argo.example.com` → `load_balancer_ip`
-- `k8s.example.com` → `load_balancer_ip`
 - `grafana.example.com` → `load_balancer_ip`
 - `longhorn.example.com` → `load_balancer_ip`
 

@@ -1,0 +1,15 @@
+{{- if (((.Values.k3s).oidc).enabled) }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: oidc-cluster-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: Group
+  name: {{ .Values.k3s.oidc.prefix }}{{ .Values.k3s.oidc.admin_group }}
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

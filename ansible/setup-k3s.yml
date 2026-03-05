@@ -18,7 +18,42 @@
   hosts: control_plane
   become: true
 
+  vars:
+    cluster_name: "{{ inventory_file | basename | regex_replace('\\.ini$', '') }}"
+
+  handlers:
+    - name: Restart K3s
+      systemd:
+        name: k3s
+        state: restarted
+      ignore_errors: true
+
   tasks:
+    - name: Load cluster config
+      include_vars:
+        file: "{{ playbook_dir }}/../clusters/{{ cluster_name }}.yaml"
+        name: config
+
+    - name: Ensure K3s config directory exists
+      file:
+        path: /etc/rancher/k3s
+        state: directory
+        mode: '0755'
+
+    - name: Write K3s OIDC config
+      copy:
+        dest: /etc/rancher/k3s/config.yaml
+        content: |
+          kube-apiserver-arg:
+            - "oidc-issuer-url={{ config.k3s.oidc.issuer_url }}"
+            - "oidc-client-id={{ config.k3s.oidc.client_id }}"
+            - "oidc-username-claim={{ config.k3s.oidc.username_claim }}"
+            - "oidc-groups-claim={{ config.k3s.oidc.groups_claim }}"
+            - "oidc-username-prefix={{ config.k3s.oidc.prefix }}"
+            - "oidc-groups-prefix={{ config.k3s.oidc.prefix }}"
+      when: ((config.k3s | default({})).oidc | default({})).enabled | default(false)
+      notify: Restart K3s
+
     - name: Install K3s control plane
       shell: |
         curl -sfL https://get.k3s.io | sh -s

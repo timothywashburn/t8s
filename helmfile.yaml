@@ -445,7 +445,7 @@ releases:
               cpu: 500m
               memory: 512Mi
 
-  - name: t8s-infrastructure
+  - name: t8s
     namespace: t8s
     createNamespace: true
     chart: ./infrastructure

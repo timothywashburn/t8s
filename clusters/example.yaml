@@ -39,6 +39,26 @@ authentik:
   postgresql:
     password: # openssl rand -base64 32
 
+k3s:
+  oidc:
+    enabled: false
+    issuer_url:
+    client_id:
+    # Which claim to use for users (default works with Authentik)
+    username_claim: email
+    # Which claim to use for groups (default works with Authentik)
+    groups_claim: groups
+    # Prefix added to avoid collisions with users/groups (this default should work fine)
+    prefix: "oidc:"
+    # Admin group from IdP (this default works with Authentik)
+    admin_group: authentik Admins
+  # Create workspaces (managed namespaces), for specific users to have access to
+  workspaces: []
+  # Example:
+  #  - user: example@email.com
+  #    namespace: example
+  #    role: edit   # edit, view, or admin
+
 # The projects that should be deployed on argo
 applications:
   - name: example-project
