@@ -1,4 +1,4 @@
-# Hosts for the respective dashboards that are installed by the project
+# hosts for the respective dashboards that are installed by the project
 hosts:
   argocd:
   grafana:
@@ -6,26 +6,26 @@ hosts:
   longhorn:
   authentik:
 
-# The IP that the cluster will use for all ingress routing
+# the IP that the cluster will use for all ingress routing
 load_balancer_ip:
 
 cert_manager:
-  # Email used for issuing certificates
+  # email used for issuing certificates
   email:
-  # Certificate issuer to use (letsencrypt-prod or letsencrypt-staging)
+  # certificate issuer to use (letsencrypt-prod or letsencrypt-staging)
   cert_issuer: letsencrypt-prod
 
 longhorn:
   # the number of times a volume gets replicated across the cluster (cannot be less than number of nodes)
   replica_count: 3
-  # Optionally provide these credentials from authentik to create a secure way to access the longhorn dashboard.
-  # Without these credentials the dashboard is only accessible via port forwarding.
+  # optionally provide these credentials from authentik to create a secure way to access the longhorn dashboard.
+  # without these credentials the dashboard is only accessible via port forwarding.
   ingress_and_auth:
     enabled: false
     oauth_client_id: # copy from authentik provider
     oauth_client_secret: # copy from authentik provider
     cookie_secret: # openssl rand -base64 32 | head -c 32
-  # Optionally provide Cloudflare R2 credentials for Longhorn backups.
+  # optionally provide Cloudflare R2 credentials for Longhorn backups.
   r2:
     enabled: false
     access_key_id:
@@ -33,7 +33,6 @@ longhorn:
     account_id: # Your Cloudflare account ID for the R2 endpoint
     bucket_name: # The R2 bucket name for backups (e.g., longhorn-backups)
 
-# Authentik Identity Provider configuration
 authentik:
   secret_key: # openssl rand -base64 50
   postgresql:
@@ -44,22 +43,22 @@ k3s:
     enabled: false
     issuer_url:
     client_id:
-    # Which claim to use for users (default works with Authentik)
+    # which claim to use for users (default works with Authentik)
     username_claim: email
-    # Which claim to use for groups (default works with Authentik)
+    # which claim to use for groups (default works with Authentik)
     groups_claim: groups
-    # Prefix added to avoid collisions with users/groups (this default should work fine)
+    # prefix added to avoid collisions with users/groups (this default should work fine)
     prefix: "oidc:"
-    # Admin group from IdP (this default works with Authentik)
+    # admin group from IdP (this default works with Authentik)
     admin_group: authentik Admins
-  # Create workspaces (managed namespaces), for specific users to have access to
+  # create workspaces (managed namespaces), for specific users to have access to
   workspaces: []
-  # Example:
+  # example:
   #  - user: example@email.com
   #    namespace: example
   #    role: edit   # edit, view, or admin
 
-# The projects that should be deployed on argo
+# the projects that should be deployed on argo
 applications:
   - name: example-project
     namespace: example
