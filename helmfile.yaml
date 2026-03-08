@@ -3,6 +3,8 @@ environments:
     values:
       - clusters/{{ requiredEnv "CLUSTER" }}.yaml
 ---
+helmDefaults:
+  kubeContext: {{ .Environment.Values.kube_context }}
 repositories:
   - name: metallb
     url: https://metallb.github.io/metallb

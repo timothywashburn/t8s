@@ -1,3 +1,6 @@
+# the context name of this cluster (from kubectl config get-contexts)
+kube_context:
+
 # hosts for the respective dashboards that are installed by the project
 hosts:
   argocd:
