@@ -1,4 +1,4 @@
-{{- if (((.Values.k3s).oidc).enabled) }}
+{{- if .Values.k3s.oidc.enabled }}
 {{- range .Values.k3s.workspaces }}
 ---
 apiVersion: v1

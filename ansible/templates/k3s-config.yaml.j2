@@ -1,0 +1,30 @@
+# CIS Benchmark - K3s hardening config (https://docs.k3s.io/security/hardening-guide)
+protect-kernel-defaults: true
+secrets-encryption: true
+
+kube-apiserver-arg:
+  - "enable-admission-plugins=NodeRestriction,EventRateLimit,AlwaysPullImages"
+  - "admission-control-config-file=/var/lib/rancher/k3s/server/psa.yaml"
+  - "audit-log-path=/var/lib/rancher/k3s/server/logs/audit.log"
+  - "audit-policy-file=/var/lib/rancher/k3s/server/audit.yaml"
+  - "audit-log-maxage=30"
+  - "audit-log-maxbackup=10"
+  - "audit-log-maxsize=100"
+  - "service-account-extend-token-expiration=false"
+  - "request-timeout=60s"
+{% if (config.k3s.oidc | default({})).enabled | default(false) %}
+  - "oidc-issuer-url={{ config.k3s.oidc.issuer_url }}"
+  - "oidc-client-id={{ config.k3s.oidc.client_id }}"
+  - "oidc-username-claim={{ config.k3s.oidc.username_claim }}"
+  - "oidc-groups-claim={{ config.k3s.oidc.groups_claim }}"
+  - "oidc-username-prefix={{ config.k3s.oidc.prefix }}"
+  - "oidc-groups-prefix={{ config.k3s.oidc.prefix }}"
+{% endif %}
+
+kube-controller-manager-arg:
+  - "terminated-pod-gc-threshold=100"
+
+kubelet-arg:
+  - "streaming-connection-idle-timeout=5m"
+  - "pod-max-pids=4096"
+  - "tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305"
