@@ -2,7 +2,6 @@
 hosts:
   argocd:
   grafana:
-  dashboard:
   longhorn:
   authentik:
 

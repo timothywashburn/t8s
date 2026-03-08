@@ -8,7 +8,6 @@ A project management tool designed to help deploy ArgoCD compatible projects qui
 - Automatic SSL certificate creation
 - Longhorn for persistent storage and volume management
 - Authentik for identity management and single sign-on
-- Kubernetes Dashboard for visual cluster management
 - ArgoCD for GitOps-based application deployment
 - ArgoCD Image Updater for automatic container image updates
 - Grafana, Prometheus, Loki, and more for collecting and displaying logs and metrics
