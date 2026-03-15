@@ -1,23 +1,29 @@
 {{- if .Values.k3s.oidc.enabled }}
 {{- range .Values.k3s.workspaces }}
+{{- if ne .create_namespace false }}
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
   name: {{ .namespace }}
+{{- end }}
+{{- $namespace := .namespace }}
+{{- $prefix := $.Values.k3s.oidc.prefix }}
+{{- range .users }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: oidc-workspace-access
-  namespace: {{ .namespace }}
+  name: oidc-workspace-{{ .email | replace "@" "-" | replace "." "-" }}
+  namespace: {{ $namespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: {{ .role | default "edit" }}
 subjects:
 - kind: User
-  name: {{ $.Values.k3s.oidc.prefix }}{{ .user }}
+  name: {{ $prefix }}{{ .email }}
   apiGroup: rbac.authorization.k8s.io
+{{- end }}
 {{- end }}
 {{- end }}

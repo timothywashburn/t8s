@@ -56,9 +56,13 @@ k3s:
   # create workspaces (managed namespaces), for specific users to have access to
   workspaces: []
   # example:
-  #  - user: example@email.com
-  #    namespace: example
-  #    role: edit   # edit, view, or admin
+  #  - namespace: example
+  #    create_namespace: true  # set to false if the namespace already exists (default: true)
+  #    users:
+  #      - email: example@email.com
+  #        role: edit    # edit, view, or admin
+  #      - email: another@email.com
+  #        role: view
 
 # the projects that should be deployed on argo
 applications:
