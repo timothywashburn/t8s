@@ -37,8 +37,6 @@ releases:
     createNamespace: true
     chart: longhorn/longhorn
     version: 1.10.1
-    needs:
-      - metallb-system/metallb
     values:
       - persistence:
           defaultClass: true
@@ -97,8 +95,6 @@ releases:
     createNamespace: true
     chart: argo/argo-cd
     version: 9.2.1
-    needs:
-      - metallb-system/metallb
     values:
       - server:
           insecure: true
@@ -301,7 +297,6 @@ releases:
       - monitoring/loki
       - monitoring/prometheus
       - longhorn-system/longhorn
-      - metallb-system/metallb
     values:
       - persistence:
           type: pvc
@@ -396,7 +391,6 @@ releases:
     chart: goauthentik/authentik
     version: 2025.10.3
     needs:
-      - metallb-system/metallb
       - longhorn-system/longhorn
     values:
       - authentik:
@@ -452,7 +446,6 @@ releases:
     createNamespace: true
     chart: ./infrastructure
     needs:
-      - metallb-system/metallb
       - cert-manager/cert-manager
       - argocd/argocd
       - monitoring/grafana

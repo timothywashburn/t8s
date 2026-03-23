@@ -65,7 +65,9 @@ fi
 
 echo -e "${BLUE}Setting up kubectl access to K3s cluster at $VPS_IP as context '$CONTEXT_NAME'${NC}"
 mkdir -p ~/.kube
-ssh "$CONNECTION_STRING" "sudo cat /etc/rancher/k3s/k3s.yaml" > /tmp/k3s-config.yaml
+ssh -t "$CONNECTION_STRING" "sudo sh -c 'cp /etc/rancher/k3s/k3s.yaml /tmp/k3s-config.yaml && chown $VPS_USER /tmp/k3s-config.yaml'"
+scp "$CONNECTION_STRING:/tmp/k3s-config.yaml" /tmp/k3s-config.yaml
+ssh "$CONNECTION_STRING" "rm /tmp/k3s-config.yaml"
 
 echo -e "${BLUE}Extracting certificates${NC}"
 CA_DATA=$(grep 'certificate-authority-data:' /tmp/k3s-config.yaml | awk '{print $2}')
@@ -77,7 +79,7 @@ echo "$CLIENT_KEY_DATA" | base64 -d > /tmp/client.key
 
 echo -e "${BLUE}Adding new context to kubeconfig${NC}"
 kubectl config set-cluster "$CONTEXT_NAME" \
-  --server=https://127.0.0.1:${PORT} \
+  --server=https://${VPS_IP}:${PORT} \
   --certificate-authority=/tmp/ca.crt \
   --embed-certs=true
 kubectl config set-credentials "$CONTEXT_NAME" \
