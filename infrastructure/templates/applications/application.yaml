@@ -20,8 +20,12 @@ spec:
       values: |
 {{ toYaml .values | indent 8 }}
       {{- end }}
-      {{- if .images }}
+      {{- if or .images $.Values.cloudflare_tunnel.enabled }}
       parameters:
+        {{- if $.Values.cloudflare_tunnel.enabled }}
+        - name: ingress.tls
+          value: "false"
+        {{- end }}
         {{- range .images }}
         - name: image.{{ .alias }}.name
           value: {{ .image }}

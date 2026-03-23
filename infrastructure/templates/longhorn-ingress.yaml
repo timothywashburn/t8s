@@ -1,4 +1,4 @@
-{{- if and .Values.longhorn.ingress_and_auth.enabled }}
+{{- if .Values.longhorn.ingress_and_auth.enabled }}
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
@@ -20,7 +20,11 @@ metadata:
   namespace: longhorn-system
 spec:
   entryPoints:
+    {{- if .Values.cloudflare_tunnel.enabled }}
+    - web
+    {{- else }}
     - websecure
+    {{- end }}
   routes:
     - kind: Rule
       match: Host(`{{ .Values.hosts.longhorn }}`) && PathPrefix(`/oauth2`)
@@ -36,8 +40,11 @@ spec:
       services:
         - name: longhorn-frontend
           port: 80
+  {{- if not .Values.cloudflare_tunnel.enabled }}
   tls:
     secretName: longhorn-tls
+  {{- end }}
+{{- if not .Values.cloudflare_tunnel.enabled }}
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
@@ -78,4 +85,5 @@ spec:
     kind: ClusterIssuer
   dnsNames:
     - {{ .Values.hosts.longhorn }}
+{{- end }}
 {{- end }}

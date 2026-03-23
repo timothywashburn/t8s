@@ -40,18 +40,20 @@ Run the playbook to set up K3s:
 ansible-playbook -i clusters/default.ini ansible/setup-k3s.yml
 ```
 
+Note: This requires an account with superuser access. If a password is required to do this pass the `-K (--ask-becom-pass)` flag.
+
 ### Step 4: Configure Local kubectl Access
-
-Port forward the api to your local machine if necessary using:
-
-```bash
-autossh -M 0 -fN -L <local_port>:localhost:6443 <username@host>
-```
 
 Setup local access to use `kubectl`. The following script can do so automatically but requires the control plane to be accessible at a public ip, and have a ssh server accessible via public key (no password auth) at port 22.
 
 ```bash
 ./scripts/setup-kubeconfig.sh USER@VPS_IP CONTEXT_NAME
+```
+
+Port forward the api to your local machine if necessary using (you will also need to change the ip of the server in the config to be `127.0.0.1:<local_port>`:
+
+```bash
+autossh -M 0 -fN -L <local_port>:localhost:6443 <username@host>
 ```
 
 ### Step 5: Install dependencies

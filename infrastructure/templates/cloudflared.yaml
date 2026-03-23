@@ -1,0 +1,80 @@
+{{- if .Values.cloudflare_tunnel.enabled }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cloudflare-tunnel-credentials
+  namespace: kube-system
+type: Opaque
+stringData:
+  credentials.json: {{ .Values.cloudflare_tunnel.credentials_json | quote }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudflared-config
+  namespace: kube-system
+data:
+  config.yaml: |
+    tunnel: {{ .Values.cloudflare_tunnel.tunnel_id }}
+    credentials-file: /etc/cloudflared/creds/credentials.json
+    ingress:
+      - service: http://traefik.kube-system.svc.cluster.local:80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudflared
+  namespace: kube-system
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cloudflared
+  template:
+    metadata:
+      labels:
+        app: cloudflared
+    spec:
+      containers:
+        - name: cloudflared
+          image: cloudflare/cloudflared:latest
+          command:
+            - cloudflared
+            - tunnel
+            - --no-autoupdate
+            - --loglevel
+            - info
+            - --metrics
+            - 0.0.0.0:2000
+            - --config
+            - /etc/cloudflared/config.yaml
+            - run
+          livenessProbe:
+            httpGet:
+              path: /ready
+              port: 2000
+            failureThreshold: 1
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          volumeMounts:
+            - name: config
+              mountPath: /etc/cloudflared
+              readOnly: true
+            - name: creds
+              mountPath: /etc/cloudflared/creds
+              readOnly: true
+          resources:
+            requests:
+              memory: 64Mi
+              cpu: 10m
+            limits:
+              memory: 128Mi
+      volumes:
+        - name: config
+          configMap:
+            name: cloudflared-config
+        - name: creds
+          secret:
+            secretName: cloudflare-tunnel-credentials
+{{- end }}
