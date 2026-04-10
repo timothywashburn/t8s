@@ -4,6 +4,14 @@
   become: true
 
   tasks:
+    # https://longhorn.io/kb/troubleshooting-volume-with-multipath/
+    # TODO: do this in a less horrible way
+    - name: Remove multipath-tools
+      apt:
+        name: multipath-tools
+        state: absent
+        purge: true
+
     - name: Configure system limits
       sysctl:
         name: "{{ item.key }}"
