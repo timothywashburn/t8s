@@ -9,7 +9,17 @@ hosts:
   authentik:
 
 # the IP that the cluster will use for all ingress routing
+# not required if using cloudflare_tunnel
 load_balancer_ip:
+
+# configure a cloudflare tunnel for clusters without a public IP (e.g. home servers)
+# when enabled, cert-manager will use DNS-01 challenge via the Cloudflare API instead of HTTP-01
+# tunnel token: Cloudflare Zero Trust → Networks → Tunnels → Create tunnel → Cloudflared
+# api token: Cloudflare dashboard → Profile → API Tokens → Create Token → Edit zone DNS template
+cloudflare_tunnel:
+  enabled: false
+  tunnel_id: # UUID from `cloudflared tunnel create <name>`
+  credentials_json: # contents of ~/.cloudflared/<uuid>.json (single line)
 
 cert_manager:
   # email used for issuing certificates

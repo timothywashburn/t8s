@@ -2,8 +2,10 @@
 protect-kernel-defaults: true
 secrets-encryption: true
 
+{% if config.load_balancer_ip is defined and config.load_balancer_ip %}
 tls-san:
   - "{{ config.load_balancer_ip }}"
+{% endif %}
 
 kube-apiserver-arg:
   - "enable-admission-plugins=NodeRestriction,EventRateLimit,AlwaysPullImages"

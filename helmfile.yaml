@@ -31,6 +31,7 @@ releases:
     createNamespace: true
     chart: metallb/metallb
     version: 0.15.3
+    installed: {{ if .Environment.Values.cloudflare_tunnel.enabled }}false{{ else }}true{{ end }}
 
   - name: longhorn
     namespace: longhorn-system
@@ -74,6 +75,7 @@ releases:
     createNamespace: true
     chart: jetstack/cert-manager
     version: v1.19.2
+    installed: {{ if .Environment.Values.cloudflare_tunnel.enabled }}false{{ else }}true{{ end }}
     values:
       - crds:
           enabled: true
